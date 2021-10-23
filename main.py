@@ -442,7 +442,7 @@ def main(args,results_face, results_ecg):
 
     
     ### ecg signals
-    x_ecg,y_ecg = create_ecg_data(time_s=360, window_s=3)
+    x_ecg,y_ecg = create_ecg_data(time_s=480, window_s=3)
     tensor_x_ecg = torch.Tensor(x_ecg) 
     tensor_y_ecg = torch.Tensor(y_ecg)
     dataset_ecg = TensorDataset(tensor_x_ecg,tensor_y_ecg)
