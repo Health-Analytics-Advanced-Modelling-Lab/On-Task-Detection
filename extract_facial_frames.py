@@ -92,10 +92,10 @@ def extract_frames(path_video, path_image, video, frame_size,i):
             y_p = y
                
    
-        if ((vidcap.get(cv2.CAP_PROP_POS_MSEC) < 120000) or (vidcap.get(cv2.CAP_PROP_POS_MSEC) >= 300000)) and (vidcap.get(cv2.CAP_PROP_POS_MSEC) < 360000):
+        if ((vidcap.get(cv2.CAP_PROP_POS_MSEC) < 120000) or (vidcap.get(cv2.CAP_PROP_POS_MSEC) >= 420000)) and (vidcap.get(cv2.CAP_PROP_POS_MSEC) < 480000):
             cv2.imwrite(path_image +"%d_%d_rest.jpg"%(i,count), face_frame2)     # save rest frame as JPEG file 
             print('Read a new frame(rest): %d'%(vidcap.get(cv2.CAP_PROP_POS_MSEC)))
-        elif (vidcap.get(cv2.CAP_PROP_POS_MSEC) >= 120000) and (vidcap.get(cv2.CAP_PROP_POS_MSEC) < 300000):
+        elif (vidcap.get(cv2.CAP_PROP_POS_MSEC) >= 130000) and (vidcap.get(cv2.CAP_PROP_POS_MSEC) < 310000):
             cv2.imwrite(path_image +"%d_%d_focus.jpg"%(i,count), face_frame2)   # save frame as JPEG file 
             print('Read a new frame(focus): %d'%(vidcap.get(cv2.CAP_PROP_POS_MSEC)))
          
@@ -121,8 +121,8 @@ def main(path_video):
   
     ###extract images from imgage folder
     video_nums = ['001-2','002-1','003-1','004-2','005-1','006-2','007-1','008-1','009-1','010-1'\
-                  ,'011-1','013-1','015-1','017-1','018-1','019-1','021-1','022-1','023-1',\
-                  '025-1', '026-1','027-1','028-1','030-1']
+                  ,'011-1','013-1','015-1','016-1','017-1','018-1','019-1','021-1','022-1','023-1',\
+                  '024-1','025-1', '026-1','027-1','028-1','029-1','030-1','033-1','034-1','035-1']
     
    
     for i in range(len(video_nums)):

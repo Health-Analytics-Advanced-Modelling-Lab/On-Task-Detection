@@ -96,18 +96,16 @@ def create_ecg_image(time_s, window_s):
     new_hz = 100
     window_size = window_s
     
-    path_mat = './data/ECG/'
+    path_mat = './data/tetrisBiopac/'
     path_img = './data/ecg_img/images/'
     
     if not os.path.exists(path_img):
         os.makedirs(path_img)
-    # 
-    files = ['001-2','002-1','003-1','004-2','005-1','006-2','007-1','008-1','009-1','010-1'\
-                  ,'011-1','013-1','015-1','017-1','018-1','019-1','021-1','022-1','023-1',\
-                  '025-1', '026-1','027-1','028-1','030-1']
      
-    # files = ['004-2']
-
+    files = ['001-2','002-1','003-1','004-2','005-1','006-2','007-1','008-1','009-1','010-1'\
+                  ,'011-1','013-1','015-1','016-1','017-1','018-1','019-1','021-1','022-1','023-1',\
+                  '024-1','025-1', '026-1','027-1','028-1','029-1','030-1','033-1','034-1','035-1']
+    
     for i in range(len(files)):
         mat = scipy.io.loadmat(path_mat + 'StressTetris-1-'+files[i]+'-iPhone-LightON.mat')
         # print(mat)
@@ -119,7 +117,9 @@ def create_ecg_image(time_s, window_s):
         # plot_ecg(sampled_data,rate=100,seconds=time_s, s='resampled')     
         
         norm_data = preprocessing.normalize([sampled_data])[0]   
-        print('norm_data',norm_data[:10])              
+        print('norm_data.shape',norm_data.shape)   
+        norm_data = np.concatenate((norm_data[:12000],norm_data[13000:31000],norm_data[42000:48000]), axis=0) 
+        print('norm_data.shape = ',norm_data.shape) 
         # plot_ecg(norm_data[0],rate=100, seconds = time_s, s='resampled and normalized')
         count = 0
         for j in range(0, norm_data.shape[0], window_size*new_hz):
@@ -163,48 +163,42 @@ def create_ecg_data(time_s, window_s):
     path_mat = './data/tetrisBiopac/'
     
     files = ['001-2','002-1','003-1','004-2','005-1','006-2','007-1','008-1','009-1','010-1'\
-                  ,'011-1','013-1','015-1','017-1','018-1','019-1','021-1','022-1','023-1',\
-                  '025-1', '026-1','027-1','028-1','030-1']
+                      ,'011-1','013-1','015-1','016-1','017-1','018-1','019-1','021-1','022-1','023-1',\
+                      '024-1','025-1', '026-1','027-1','028-1','029-1','030-1','033-1','034-1','035-1']
 
-     
     x = []
     y = []
     for i in range(len(files)):
         mat = scipy.io.loadmat(path_mat + 'StressTetris-1-'+files[i]+'-iPhone-LightON.mat')
         # print(mat)
         data = mat['data'][:,0][:time_s*origin_hz] 
-#        plot_ecg(data,rate=200,seconds= 70, s='ECG (200 Hz)')  
-        ## downsampling from 200hz to 100hz
         sampled_data = signal.resample(data, int(round(len(data)/(origin_hz/new_hz))))               
-#        plot_ecg(sampled_data,rate=100,seconds=70, s='ECG (100 Hz)')         
-        norm_data = preprocessing.normalize([sampled_data])                 
-#        plot_ecg(norm_data[0],rate=100, seconds = time_s, s='Normalized ECG (100 Hz)')
-        ###plt.savefig('/temp/test.png', bbox_inches='tight', transparent=True, pad_inches=0)
-        
-        # filtered_data = filter_signal_data(sampled_data, fps=hz)        
-        # plot_ecg(filtered_data[:300],rate=100, seconds = 3, s='resampled and filtered')
-
-
-        data_x = norm_data.reshape(-1,window_size*new_hz)
+#        print("sampled_data.shape = ",sampled_data.shape)
+        norm_data = preprocessing.normalize([sampled_data])  
+#        print("norm_data.shape = ",norm_data.shape)     
+        data_x = norm_data.reshape(-1,new_hz)
+        print("original data_x.shape = ",data_x.shape)        
+        data_x = np.concatenate((data_x[:120,:],data_x[130:310,:],data_x[420:480,:]), axis=0)
+        print("data_x.shape = ",data_x.shape)
+        data_x = data_x.reshape(-1,window_size*new_hz)
+        print("data_x2.shape = ",data_x.shape)
         data_y = np.zeros(len(data_x))
         data_y[int(120/window_size):int(300/window_size)] = 1
         
-        # print(len(data_x))
-     
+        # print(len(data_x))     
         # print(len(data_y))
        
-        
         x.extend(data_x)
         y.extend(data_y)
         
     return np.array(x), np.array(y)
 
 if __name__=="__main__":
-    time_s = 360
+    time_s = 480
     
     ###create ecg signal images
-#    create_ecg_image(time_s,3)   
-#    create_ecg_data(time_s, 3)
+    create_ecg_image(time_s,3)   
+    create_ecg_data(time_s, 3)
     
     image_path = './data/ecg_img/'
     image_dir = image_path + 'images/'    
@@ -216,5 +210,5 @@ if __name__=="__main__":
         # transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])    
     
-#    creat_csv(img_csv, image_path,image_dir)    
+    creat_csv(img_csv, image_path,image_dir)    
     # train_loader1, test_loader1, img_dataset1 = create_img_datasets(batch_size, transform, image_path, image_dir, img_csv)

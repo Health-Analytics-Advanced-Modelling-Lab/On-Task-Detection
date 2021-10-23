@@ -106,7 +106,7 @@ if __name__=="__main__":
     ])    
     
 
-    # creat_csv(img_csv, image_path,image_dir)
+    creat_csv(img_csv, image_path,image_dir)
     
     
     train_loader, test_loader, img_dataset = create_datasets(batch_size, transform, image_path, image_dir, img_csv)

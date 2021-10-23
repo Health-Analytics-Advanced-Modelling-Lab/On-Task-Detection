@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Created on Wed Aug 25 12:17:56 2021
+
+@author: xiaoyan
+"""
 
 import os
 import argparse
@@ -387,7 +392,7 @@ def main(args, results_ecg):
 
     
     ### ecg signals
-    x_ecg,y_ecg = create_ecg_data(time_s=360, window_s=3)
+    x_ecg,y_ecg = create_ecg_data(time_s=480, window_s=3)
     tensor_x_ecg = torch.Tensor(x_ecg) 
     tensor_y_ecg = torch.Tensor(y_ecg)
     dataset_ecg = TensorDataset(tensor_x_ecg,tensor_y_ecg)
@@ -481,7 +486,6 @@ def main(args, results_ecg):
             cnn_ecg=CNN_1d()
             if args.cuda:
                 cnn_ecg = cnn_ecg.cuda()
-                
             cnn_ecg.apply(reset_weights)
     
             num_epochs = 1500

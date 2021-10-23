@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Created on Wed Aug 25 12:17:56 2021
 
+@author: xiaoyan
+"""
 
 import os
 import argparse
@@ -434,7 +438,7 @@ def main(args,results_face):
     image_path_ecg = './data/ecg_img/'
     image_dir_ecg = image_path_ecg + 'images/'  
     batch_size_ecg = 256
-    _, _, dataset_ecg_img = create_datasets(batch_size_ecg, transform, image_path_ecg, image_dir_ecg, img_csv)   
+#    _, _, dataset_ecg_img = create_datasets(batch_size_ecg, transform, image_path_ecg, image_dir_ecg, img_csv)   
     
     for n in range(repeat):
         kfold = KFold(n_splits=k_folds, random_state= seed[n], shuffle=True)
@@ -658,7 +662,7 @@ def main(args,results_face):
     acc_xgb_std_f = np.array(acc_xgb_fac).std()
     acc_xgb_conf_f = st.t.interval(0.95, len(acc_xgb_fac)-1, loc=np.mean(acc_xgb_fac), scale=st.sem(acc_xgb_fac))
 
-    ### results of precision
+    ## results of precision
     rest_pre_ensem_mean_f0 = np.array(rest_pre_ensem_fac0).mean()
     rest_pre_ensem_std_f0 = np.array(rest_pre_ensem_fac0).std() 
     rest_pre_ensem_conf_f0 = st.t.interval(0.95, len(rest_pre_ensem_fac0)-1, loc=np.mean(rest_pre_ensem_fac0), scale=st.sem(rest_pre_ensem_fac0)) 
@@ -694,7 +698,7 @@ def main(args,results_face):
     focus_pre_xgb_std_f = np.array(focus_pre_xgb_fac).std()
     focus_pre_xgb_conf_f = st.t.interval(0.95, len(focus_pre_xgb_fac)-1, loc=np.mean(focus_pre_xgb_fac), scale=st.sem(focus_pre_xgb_fac))
     
-    ### results of recall
+    ## results of recall
     rest_rec_ensem_mean_f0 = np.array(rest_rec_ensem_fac0).mean()
     rest_rec_ensem_std_f0 = np.array(rest_rec_ensem_fac0).std() 
     rest_rec_ensem_conf_f0 = st.t.interval(0.95, len(rest_rec_ensem_fac0)-1, loc=np.mean(rest_rec_ensem_fac0), scale=st.sem(rest_rec_ensem_fac0))
@@ -739,7 +743,7 @@ def main(args,results_face):
     print("facial image method %s: acc with mean of %0.4f, a std of %0.4f, and conf_int of (%0.4f, %0.4f)\n" % (method2, acc_svm_mean_f, acc_svm_std_f, acc_svm_conf_f[0],acc_svm_conf_f[1]))
     print("facial image method %s: acc with mean of %0.4f, a std of %0.4f, and conf_int of (%0.4f, %0.4f)\n" % (method3, acc_xgb_mean_f, acc_xgb_std_f, acc_xgb_conf_f[0],acc_xgb_conf_f[1]))
     
-    ### print precision
+    ## print precision
     print("facial image equal weight method %s: rest prec with mean of %0.4f, a std of %0.4f, and conf_int of (%0.4f, %0.4f)\n" % (args.method, rest_pre_ensem_mean_f0, rest_pre_ensem_std_f0, rest_pre_ensem_conf_f0[0], rest_pre_ensem_conf_f0[1]))
     print("facial image equal weight method %s: focus prec with mean of %0.4f, a std of %0.4f, and conf_int of (%0.4f, %0.4f)\n" % (args.method, focus_pre_ensem_mean_f0, focus_pre_ensem_std_f0, focus_pre_ensem_conf_f0[0],focus_pre_ensem_conf_f0[1]))
     print("facial image optimal weight method %s: rest prec with mean of %0.4f, a std of %0.4f, and conf_int of (%0.4f, %0.4f)\n" % (args.method, rest_pre_ensem_mean_f, rest_pre_ensem_std_f, rest_pre_ensem_conf_f[0], rest_pre_ensem_conf_f[1]))
@@ -751,7 +755,7 @@ def main(args,results_face):
     print("facial image method xgb: rest prec with mean of %0.4f, a std of %0.4f, and conf_int of (%0.4f, %0.4f)\n" % (rest_pre_xgb_mean_f, rest_pre_xgb_std_f, rest_pre_xgb_conf_f[0], rest_pre_xgb_conf_f[1]))
     print("facial image method xgb: focus prec with mean of %0.4f, a std of %0.4f, and conf_int of (%0.4f, %0.4f)\n" % (focus_pre_xgb_mean_f, focus_pre_xgb_std_f, focus_pre_xgb_conf_f[0], focus_pre_xgb_conf_f[1]))
 
-    ### print recall
+    ## print recall
     print("facial image equal weight method %s: rest recall with mean of %0.4f, a std of %0.4f, and conf_int of (%0.4f, %0.4f)\n" % (args.method, rest_rec_ensem_mean_f0, rest_rec_ensem_std_f0, rest_rec_ensem_conf_f0[0], rest_rec_ensem_conf_f0[1]))
     print("facial image equal weight method %s: focus recall with mean of %0.4f, a std of %0.4f, and conf_int of (%0.4f, %0.4f)\n" % (args.method, focus_rec_ensem_mean_f0, focus_rec_ensem_std_f0, focus_rec_ensem_conf_f0[0],focus_rec_ensem_conf_f0[1]))
     print("facial image optimal weight method %s: rest recall with mean of %0.4f, a std of %0.4f, and conf_int of (%0.4f, %0.4f)\n" % (args.method, rest_rec_ensem_mean_f, rest_rec_ensem_std_f, rest_rec_ensem_conf_f[0], rest_rec_ensem_conf_f[1]))
