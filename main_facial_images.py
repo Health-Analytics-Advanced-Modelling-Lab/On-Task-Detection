@@ -70,7 +70,7 @@ def predict_img(args, model, test_loader, epoch, method, path, fold, n, test_ids
     for x_test, test_y in test_loader:
         total_num += len(test_y)
         with torch.no_grad():
-            yhats, _ = model(to_gpu(args.cuda, x_test))
+            yhats = model(to_gpu(args.cuda, x_test))
         
         yhats = yhats.cpu().detach().numpy()       
         ### the output probability        
@@ -313,7 +313,8 @@ def predict_svm_xgb(args, model, x_test, y_test, path, method, fold, n, test_ids
     pickle.dump(y_test, open(results_true, "wb"))
                
     
-    return y_pred, yhats, acc, rest_precision, focus_precision, rest_recall, focus_recall, correct_id_res, incorrect_id_res, correct_id_foc, incorrect_id_foc
+    return y_pred, yhats, acc, rest_precision, focus_precision, rest_recall, focus_recall,\
+             correct_id_res, incorrect_id_res, correct_id_foc, incorrect_id_foc
 
 def train_model(model, train_loader, test_loader, num_epochs, path, method, fold, n):
     results_path = path + '{}/'.format(method) 
@@ -337,7 +338,7 @@ def train_model(model, train_loader, test_loader, num_epochs, path, method, fold
         for i, sample_batch in enumerate(train_loader):
         
             x_train, y_train = sample_batch
-            preds, _ = model(to_gpu(args.cuda, x_train))
+            preds = model(to_gpu(args.cuda, x_train))
             optimizer.zero_grad()
 
             loss = criterion(preds.squeeze(), to_gpu(args.cuda, y_train).float())
@@ -357,7 +358,7 @@ def train_model(model, train_loader, test_loader, num_epochs, path, method, fold
                 
                 model.eval()
     
-                yhat, _ = model(x_val)
+                yhat = model(x_val)
                 val_l = criterion(yhat.squeeze(), y_val.float())
                 val_loss += val_l.item()
                 
@@ -433,12 +434,6 @@ def main(args,results_face):
     y_224 = np.asarray(y_224)
     
     ###########################################################################
-    ### create dataset for ecg signals  
-    ### ecg image dataset
-    image_path_ecg = './data/ecg_img/'
-    image_dir_ecg = image_path_ecg + 'images/'  
-    batch_size_ecg = 256
-#    _, _, dataset_ecg_img = create_datasets(batch_size_ecg, transform, image_path_ecg, image_dir_ecg, img_csv)   
     
     for n in range(repeat):
         kfold = KFold(n_splits=k_folds, random_state= seed[n], shuffle=True)
@@ -477,12 +472,12 @@ def main(args,results_face):
             x_test_224, y_test_224 = x_224[test_ids], y_224[test_ids]           
             x_train_224, y_train_224 = shuffle(x_train_224, y_train_224) ## only shuffle train dataset
 
-            method1 = 'Pretrained_VGG_face'
+            method1 = 'Pre-trained_VGG_video'
             vgg_face = alexnet()
             if args.cuda:
                 vgg_face = vgg_face.cuda()
             reset_weights_vgg(vgg_face)
-            num_epochs = 150
+            num_epochs = 15
             
             start_vgg = datetime.now() 
             if not args.test:
@@ -503,7 +498,7 @@ def main(args,results_face):
             test_time_vgg = datetime.now() - train_time
             print('the testing time of method {} is {}'.format(method1, test_time_vgg))
             
-            method2 = 'SVM_face'
+            method2 = 'SVM_video'
             svm_face= svm.SVC(kernel='poly', probability=True)
             path_svm_face = results_face + '{}/'.format(method2) 
             if not os.path.exists(path_svm_face):
@@ -531,7 +526,7 @@ def main(args,results_face):
             test_time_svm= datetime.now() - train_time
             print('the testing time of method {} is {}'.format(method2, test_time_svm))
             
-            method3 = 'XGBoost_face'
+            method3 = 'XGBoost_video'
             xgb_face= xgb.XGBClassifier(learning_rate =0.1, n_estimators=100, max_depth=5, min_child_weight=1, gamma=0,  subsample=0.8,\
                                   colsample_bytree=0.8, objective= 'binary:logistic', scale_pos_weight=1, seed=27)  
                 

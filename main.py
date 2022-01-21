@@ -70,7 +70,7 @@ def predict_img(args, model, test_loader, epoch, method, path, fold, n, test_ids
     for x_test, test_y in test_loader:
         total_num += len(test_y)
         with torch.no_grad():
-            yhats, _ = model(to_gpu(args.cuda, x_test))
+            yhats = model(to_gpu(args.cuda, x_test))
         
         yhats = yhats.cpu().detach().numpy()       
         ### the output probability        
@@ -152,7 +152,7 @@ def predict_img(args, model, test_loader, epoch, method, path, fold, n, test_ids
     pred_idx2 = pred_pkl + '{}_repeat{}_fold{}_pred_index2.pkl'.format(method, n, fold)
     true_ind = pred_pkl + '{}_repeat{}_fold{}_true_index.pkl'.format(method, n, fold)
     
-    pred_arry = np.array([correct_id_res, incorrect_id_res, correct_id_foc, incorrect_id_foc])
+    pred_arry = np.array([correct_id_res, incorrect_id_res, correct_id_foc, incorrect_id_foc], dtype=object)
     pickle.dump(pred_arry, open(pred_idx1, "wb"))
 
     pred_res = []
@@ -281,7 +281,7 @@ def predict_svm_xgb(args, model, x_test, y_test, path, method, fold, n, test_ids
     pred_idx2 = pred_pkl + '{}_repeat{}_fold{}_pred_index2.pkl'.format(method, n, fold)
     true_ind = pred_pkl + '{}_repeat{}_fold{}_true_index.pkl'.format(method, n, fold)
     
-    pred_arry = np.array([correct_id_res, incorrect_id_res, correct_id_foc, incorrect_id_foc])
+    pred_arry = np.array([correct_id_res, incorrect_id_res, correct_id_foc, incorrect_id_foc],dtype=object)
     pickle.dump(pred_arry, open(pred_idx1, "wb"))
 
     pred_res = []
@@ -290,7 +290,7 @@ def predict_svm_xgb(args, model, x_test, y_test, path, method, fold, n, test_ids
     pred_res.extend(incorrect_id_foc)
     pred_foc.extend(correct_id_foc)
     pred_foc.extend(incorrect_id_res)
-    pred_res_foc = np.array([pred_res, pred_foc])
+    pred_res_foc = np.array([pred_res, pred_foc], dtype=object)
     pickle.dump(pred_res_foc, open(pred_idx2, "wb"))  
 
     true_res = []
@@ -300,7 +300,7 @@ def predict_svm_xgb(args, model, x_test, y_test, path, method, fold, n, test_ids
     true_foc.extend(correct_id_foc)
     true_foc.extend(incorrect_id_foc)    
     
-    true_res_foc = np.array([true_res, true_foc])
+    true_res_foc = np.array([true_res, true_foc],dtype=object)
     pickle.dump(true_res_foc, open(true_ind, "wb")) 
     
     ### save the predicted probility and class label into files
@@ -337,7 +337,7 @@ def train_model(model, train_loader, test_loader, num_epochs, path, method, fold
         for i, sample_batch in enumerate(train_loader):
         
             x_train, y_train = sample_batch
-            preds, _ = model(to_gpu(args.cuda, x_train))
+            preds = model(to_gpu(args.cuda, x_train))
             optimizer.zero_grad()
 
             loss = criterion(preds.squeeze(), to_gpu(args.cuda, y_train).float())
@@ -357,7 +357,7 @@ def train_model(model, train_loader, test_loader, num_epochs, path, method, fold
                 
                 model.eval()
     
-                yhat, _ = model(x_val)
+                yhat = model(x_val)
                 val_l = criterion(yhat.squeeze(), y_val.float())
                 val_loss += val_l.item()
                 
@@ -390,8 +390,11 @@ def main(args,results_face, results_ecg):
        
     transform = transforms.Compose([
         transforms.ToTensor()
+#        transforms.CenterCrop(224)
+#        transforms.RandomHorizontalFlip(p =0.5),
+#        transforms.RandomRotation(15),
+#        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
-
     _, _, dataset_224 = create_datasets(args.batch_size,transform, image_path, image_dir, img_csv)
      
     acc_ensem_fac0 = []
@@ -575,7 +578,7 @@ def main(args,results_face, results_ecg):
             x_test_224, y_test_224 = x_224[test_ids], y_224[test_ids]           
             x_train_224, y_train_224 = shuffle(x_train_224, y_train_224) ## only shuffle train dataset
 
-            method1 = 'Pretrained_VGG_face'
+            method1 = 'Pre-trained_VGG_video'
             vgg_face = alexnet()
             if args.cuda:
                 vgg_face = vgg_face.cuda()
@@ -848,7 +851,8 @@ def main(args,results_face, results_ecg):
             # print('y_test_ecg == y_cnn_e',y_test_ecg == y_cnn_e)
             # print('y_test_224 == y_test_ecg',y_test_224== y_test_ecg)
             
-            preds = [prob_vgg_e, prob_cnn_e, prob_svm_e, prob_xgb_e]
+            # preds = [prob_vgg_e, prob_cnn_e, prob_svm_e, prob_xgb_e]
+            preds = [prob_vgg_e, prob_svm_e, prob_xgb_e]
             acc_ensem_e0, y_ensem_e0, rest_true_e0, focus_false_e0, focus_true_e0, rest_false_e0 = equal_wight_ensemble(preds, y_test_224)           
             rest_pre_ensem_e0 = rest_true_e0/(rest_true_e0+rest_false_e0)
             focus_pre_ensem_e0 = focus_true_e0/(focus_true_e0+focus_false_e0)           
@@ -1037,7 +1041,8 @@ def main(args,results_face, results_ecg):
             plot_confusion2(y_test_224, y_ensem_vgg_cnn, args.method, vgg_1dcnn_fig_path, fold, n, labels = [0,1])              
             
             ### ensemble of all methods
-            preds = [prob_vgg_f, prob_svm_f, prob_xgb_f, prob_vgg_e, prob_cnn_e, prob_svm_e, prob_xgb_e]
+            # preds = [prob_vgg_f, prob_svm_f, prob_xgb_f, prob_vgg_e, prob_cnn_e, prob_svm_e, prob_xgb_e]
+            preds = [prob_vgg_f, prob_svm_f, prob_xgb_f, prob_vgg_e, prob_svm_e, prob_xgb_e]
             acc_ensem_en0, y_ensem_en0, rest_true_en0, focus_false_en0, focus_true_en0, rest_false_en0 = equal_wight_ensemble(preds, y_test_224)
             acc_ensem_en, y_ensem_en, rest_true_en, focus_false_en, focus_true_en, rest_false_en = optimal_wight_ensemble(preds, y_test_224) 
             
@@ -1754,11 +1759,11 @@ if __name__=="__main__":
                         help='')
     parser.add_argument('--method', type=str, default='ensemble',
                         help='') 
-    parser.add_argument('--test', type=bool, default=True,
+    parser.add_argument('--test', type=bool, default=False,
                         help='')      
     parser.add_argument('--results', type=str, default='./weighted_ensemble_results_6mins/',
                         help='')  
-    parser.add_argument('--cuda', type=bool,  default=False,
+    parser.add_argument('--cuda', type=bool,  default=True,
                         help='use CUDA')  
     parser.add_argument('--device_id', type=str, default='0')
     

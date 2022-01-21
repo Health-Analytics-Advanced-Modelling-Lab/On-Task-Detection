@@ -70,7 +70,7 @@ def predict_img(args, model, test_loader, epoch, method, path, fold, n, test_ids
     for x_test, test_y in test_loader:
         total_num += len(test_y)
         with torch.no_grad():
-            yhats, _ = model(to_gpu(args.cuda, x_test))
+            yhats = model(to_gpu(args.cuda, x_test))
         
         yhats = yhats.cpu().detach().numpy()       
         ### the output probability        
@@ -337,7 +337,7 @@ def train_model(model, train_loader, test_loader, num_epochs, path, method, fold
         for i, sample_batch in enumerate(train_loader):
         
             x_train, y_train = sample_batch
-            preds, _ = model(to_gpu(args.cuda, x_train))
+            preds = model(to_gpu(args.cuda, x_train))
             optimizer.zero_grad()
 
             loss = criterion(preds.squeeze(), to_gpu(args.cuda, y_train).float())
@@ -357,7 +357,7 @@ def train_model(model, train_loader, test_loader, num_epochs, path, method, fold
                 
                 model.eval()
     
-                yhat, _ = model(x_val)
+                yhat = model(x_val)
                 val_l = criterion(yhat.squeeze(), y_val.float())
                 val_loss += val_l.item()
                 
@@ -567,18 +567,16 @@ def main(args, results_ecg):
                 predict_svm_xgb(args, xgb_ecg, x_test_ecg, y_test_ecg, results_ecg, method7, fold, n, test_ids)            
             test_time_xgb_ecg= datetime.now() - train_time 
             print('the testing time of method {} is {}'.format(method7, test_time_xgb_ecg)) 
-            # print('y_test_ecg == y_vgg_e ?', y_test_ecg==y_vgg_e)  
-            # print('y_test_ecg == y_cnn_e',y_test_ecg == y_cnn_e)
-            # print('y_test_224 == y_test_ecg',y_test_224== y_test_ecg)
+
             
             preds = [prob_vgg_e, prob_cnn_e, prob_svm_e, prob_xgb_e]
-            acc_ensem_e0, y_ensem_e0, rest_true_e0, focus_false_e0, focus_true_e0, rest_false_e0 = equal_wight_ensemble(preds, y_test_224)           
+            acc_ensem_e0, y_ensem_e0, rest_true_e0, focus_false_e0, focus_true_e0, rest_false_e0 = equal_wight_ensemble(preds, y_test_ecg)           
             rest_pre_ensem_e0 = rest_true_e0/(rest_true_e0+rest_false_e0)
             focus_pre_ensem_e0 = focus_true_e0/(focus_true_e0+focus_false_e0)           
             rest_rec_ensem_e0 = rest_true_e0/(rest_true_e0+focus_false_e0)
             focus_rec_ensem_e0 = focus_true_e0/(focus_true_e0+rest_false_e0)
            
-            acc_ensem_e, y_ensem_e, rest_true_e, focus_false_e, focus_true_e, rest_false_e = optimal_wight_ensemble(preds, y_test_224)            
+            acc_ensem_e, y_ensem_e, rest_true_e, focus_false_e, focus_true_e, rest_false_e = optimal_wight_ensemble(preds, y_test_ecg)            
             rest_pre_ensem_e = rest_true_e/(rest_true_e+rest_false_e)
             focus_pre_ensem_e = focus_true_e/(focus_true_e+focus_false_e)           
             rest_rec_ensem_e = rest_true_e/(rest_true_e+focus_false_e)
