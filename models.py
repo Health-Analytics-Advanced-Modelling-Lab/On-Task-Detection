@@ -152,25 +152,25 @@ class CNN_1d(nn.Module):
 
     def forward(self, input):
         # print("input.shape",input.size())
-        input = input.unsqueeze(1)
-        x = self.conv1_drop(self.maxpool1(self.conv1_bn(F.relu(self.conv1(input)))))       
+        x = self.conv1_drop(self.maxpool1(self.conv1_bn(F.relu(self.conv1(input.unsqueeze(1))))))       
         x = self.conv2_drop(self.maxpool2(self.conv2_bn(F.relu(self.conv2(x)))))
         x = self.conv3_drop(self.maxpool3(self.conv3_bn(F.relu(self.conv3(x)))))
         x_0 = x.view(-1, 320) ###reshape 3 seconds (-1,320); 6seconds view(-1, 672);
         x_1 = F.relu(self.dense1(x_0))
         x = torch.sigmoid(self.dense2(x_1))
-        return x, x_0
+        return x
 
-# net = CNN_1d()
-# print(net)
+net = CNN_1d()
+print(net)
+print(list(net.children()))
 
         
 class alexnet(nn.Module):
 
-    def __init__(self, num_classes: int = 1) -> None:
+    def __init__(self, num_classes=1) -> None:
         super(alexnet, self).__init__()
         self.net = models.vgg11(pretrained=True)
-        self.features = nn.Sequential(*list(self.net.children())[:-1])
+#        self.fc_features = nn.Sequential(*list(self.net.children())[-1])
         for p in self.net.features.parameters():
             p.requires_grad=False
         for p in self.net.avgpool.parameters():
@@ -183,16 +183,29 @@ class alexnet(nn.Module):
     def forward(self,input):
         x0 = self.net(input)
         x = torch.sigmoid(x0)
-        x_f = self.features(input)
-        x_f = x_f.view(-1,25088)
-        return x, x_f
+        return x
         
-alex_net = alexnet()
-print(alex_net)
-pytorch_total_params = sum(p.numel() for p in alex_net.parameters())
-print(pytorch_total_params)
-pytorch_total_params = sum(p.numel() for p in alex_net.parameters() if p.requires_grad)
-print(pytorch_total_params)
-
-    
+#alex_net = alexnet()
+#print(alex_net.net)
+#
+##pytorch_total_params = sum(p.numel() for p in alex_net.parameters())
+##print(pytorch_total_params)
+##pytorch_total_params = sum(p.numel() for p in alex_net.parameters() if p.requires_grad)
+##print(pytorch_total_params)
+#
+#    
+#conv_layers=[]
+#model_children=list(alex_net.net.children())
+#no_of_layers = 0
+#for child in model_children:
+#  if type(child)==nn.Conv2d:
+#    no_of_layers+=1
+#    conv_layers.append(child)
+#  elif type(child)==nn.Sequential:
+#    for layer in child.children():
+#      if type(layer)==nn.Conv2d:
+#        no_of_layers+=1
+#        conv_layers.append(layer)
+#print(no_of_layers)
+#        
 
