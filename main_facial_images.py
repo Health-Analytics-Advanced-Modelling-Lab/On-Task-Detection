@@ -493,8 +493,10 @@ def main(args,results_face):
             vgg_size = sys.getsizeof(p)
             print("the size of method {} is {}".format(method1,vgg_size ))
                 
-            y_vgg_f, pred_vgg_f, prob_vgg_f, acc_vgg_f, rest_pre_vgg_f, focus_pre_vgg_f, rest_rec_vgg_f, focus_rec_vgg_f,\
-            correct_res_vgg, incorrect_res_vgg, correct_foc_vgg, incorrect_foc_vgg = predict_img(args, vgg_face, test_loader_224, num_epochs, method1, results_face, fold, n, test_ids)            
+            y_vgg_f, pred_vgg_f, prob_vgg_f, acc_vgg_f, rest_pre_vgg_f, focus_pre_vgg_f, rest_rec_vgg_f,\
+            focus_rec_vgg_f, correct_res_vgg, incorrect_res_vgg, correct_foc_vgg, incorrect_foc_vgg\
+            = predict_img(args, vgg_face, test_loader_224, num_epochs, method1, results_face, fold, n, test_ids)     
+            
             test_time_vgg = datetime.now() - train_time
             print('the testing time of method {} is {}'.format(method1, test_time_vgg))
             
@@ -521,8 +523,10 @@ def main(args,results_face):
             svm_size = sys.getsizeof(p)
             print("the size of method {} is {}".format(method2,svm_size))
                    
-            pred_svm_f, prob_svm_f, acc_svm_f, rest_pre_svm_f, focus_pre_svm_f, rest_rec_svm_f, focus_rec_svm_f, correct_res_svm, incorrect_res_svm, correct_foc_svm, incorrect_foc_svm = \
-                predict_svm_xgb(args, svm_face, x_test_224, y_test_224, results_face, method2, fold, n, test_ids)   
+            pred_svm_f, prob_svm_f, acc_svm_f, rest_pre_svm_f, focus_pre_svm_f, rest_rec_svm_f, focus_rec_svm_f,\
+            correct_res_svm, incorrect_res_svm, correct_foc_svm, incorrect_foc_svm \
+            = predict_svm_xgb(args, svm_face, x_test_224, y_test_224, results_face, method2, fold, n, test_ids)   
+            
             test_time_svm= datetime.now() - train_time
             print('the testing time of method {} is {}'.format(method2, test_time_svm))
             
@@ -552,8 +556,10 @@ def main(args,results_face):
             xgb_size = sys.getsizeof(p)
             print("the size of method {} is {}".format(method3,xgb_size))            
                    
-            pred_xgb_f, prob_xgb_f, acc_xgb_f, rest_pre_xgb_f, focus_pre_xgb_f, rest_rec_xgb_f, focus_rec_xgb_f, correct_res_xgb, incorrect_res_xgb, correct_foc_xgb, incorrect_foc_xgb = \
-                predict_svm_xgb(args, xgb_face, x_test_224, y_test_224, results_face, method3, fold, n, test_ids)
+            pred_xgb_f, prob_xgb_f, acc_xgb_f, rest_pre_xgb_f, focus_pre_xgb_f, rest_rec_xgb_f, focus_rec_xgb_f,\
+            correct_res_xgb, incorrect_res_xgb, correct_foc_xgb, incorrect_foc_xgb \
+             = predict_svm_xgb(args, xgb_face, x_test_224, y_test_224, results_face, method3, fold, n, test_ids)
+            
             # print('y_test_224 == y_vgg ?', y_test_224==y_vgg_f)
             test_time_xgb= datetime.now() - train_time
             print('the testing time of method {} is {}'.format(method3, test_time_xgb))
