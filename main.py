@@ -189,7 +189,8 @@ def predict_img(args, model, test_loader, epoch, method, path, fold, n, test_ids
                 
     plot_confusion2(y_true, y_pred, method, fig_path, fold, n, labels = [0,1])
     
-    return  y_true, y_pred, y_prob, acc, rest_precision, focus_precision, rest_recall, focus_recall, correct_id_res, incorrect_id_res, correct_id_foc, incorrect_id_foc
+    return  y_true, y_pred, y_prob, acc, rest_precision, focus_precision, rest_recall, focus_recall, correct_id_res, \
+            incorrect_id_res, correct_id_foc, incorrect_id_foc
 
 def predict_svm_xgb(args, model, x_test, y_test, path, method, fold, n, test_ids):
     rest_true = 0
@@ -313,7 +314,8 @@ def predict_svm_xgb(args, model, x_test, y_test, path, method, fold, n, test_ids
     pickle.dump(y_test, open(results_true, "wb"))
                
     
-    return y_pred, yhats, acc, rest_precision, focus_precision, rest_recall, focus_recall, correct_id_res, incorrect_id_res, correct_id_foc, incorrect_id_foc
+    return y_pred, yhats, acc, rest_precision, focus_precision, rest_recall, focus_recall, correct_id_res, \
+           incorrect_id_res, correct_id_foc, incorrect_id_foc
 
 def train_model(model, train_loader, test_loader, num_epochs, path, method, fold, n):
     results_path = path + '{}/'.format(method) 
@@ -600,7 +602,9 @@ def main(args,results_face, results_ecg):
             print("the size of method {} is {}".format(method1,vgg_size ))
                 
             y_vgg_f, pred_vgg_f, prob_vgg_f, acc_vgg_f, rest_pre_vgg_f, focus_pre_vgg_f, rest_rec_vgg_f, focus_rec_vgg_f,\
-            correct_res_vgg, incorrect_res_vgg, correct_foc_vgg, incorrect_foc_vgg = predict_img(args, vgg_face, test_loader_224, num_epochs, method1, results_face, fold, n, test_ids)            
+            correct_res_vgg, incorrect_res_vgg, correct_foc_vgg, incorrect_foc_vgg = \
+            predict_img(args, vgg_face, test_loader_224, num_epochs, method1, results_face, fold, n, test_ids)        
+            
             test_time_vgg = datetime.now() - train_time
             print('the testing time of method {} is {}'.format(method1, test_time_vgg))
             
@@ -627,8 +631,10 @@ def main(args,results_face, results_ecg):
             svm_size = sys.getsizeof(p)
             print("the size of method {} is {}".format(method2,svm_size))
                    
-            pred_svm_f, prob_svm_f, acc_svm_f, rest_pre_svm_f, focus_pre_svm_f, rest_rec_svm_f, focus_rec_svm_f, correct_res_svm, incorrect_res_svm, correct_foc_svm, incorrect_foc_svm = \
+            pred_svm_f, prob_svm_f, acc_svm_f, rest_pre_svm_f, focus_pre_svm_f, rest_rec_svm_f, focus_rec_svm_f, \
+            correct_res_svm, incorrect_res_svm, correct_foc_svm, incorrect_foc_svm = \
                 predict_svm_xgb(args, svm_face, x_test_224, y_test_224, results_face, method2, fold, n, test_ids)   
+            
             test_time_svm= datetime.now() - train_time
             print('the testing time of method {} is {}'.format(method2, test_time_svm))
             
@@ -658,8 +664,10 @@ def main(args,results_face, results_ecg):
             xgb_size = sys.getsizeof(p)
             print("the size of method {} is {}".format(method3,xgb_size))            
                    
-            pred_xgb_f, prob_xgb_f, acc_xgb_f, rest_pre_xgb_f, focus_pre_xgb_f, rest_rec_xgb_f, focus_rec_xgb_f, correct_res_xgb, incorrect_res_xgb, correct_foc_xgb, incorrect_foc_xgb = \
+            pred_xgb_f, prob_xgb_f, acc_xgb_f, rest_pre_xgb_f, focus_pre_xgb_f, rest_rec_xgb_f, focus_rec_xgb_f, \
+            correct_res_xgb, incorrect_res_xgb, correct_foc_xgb, incorrect_foc_xgb = \
                 predict_svm_xgb(args, xgb_face, x_test_224, y_test_224, results_face, method3, fold, n, test_ids)
+            
             # print('y_test_224 == y_vgg ?', y_test_224==y_vgg_f)
             test_time_xgb= datetime.now() - train_time
             print('the testing time of method {} is {}'.format(method3, test_time_xgb))
@@ -748,8 +756,9 @@ def main(args,results_face, results_ecg):
             p = pickle.dumps(vgg_ecg)
             vgg_ecg_size = sys.getsizeof(p)
             print("the size of method {} is {}".format(method4, vgg_ecg_size))
-            y_vgg_e, pred_vgg_e, prob_vgg_e, acc_vgg_e, rest_pre_vgg_e, focus_pre_vgg_e, rest_rec_vgg_e, focus_rec_vgg_e, y_vgg_e_p_r, y_vgg_e_p_f, true_rest, true_focus =\
-                predict_img(args, vgg_ecg, test_loader_ecg_img, num_epochs, method4, results_ecg, fold, n, test_ids)            
+            y_vgg_e, pred_vgg_e, prob_vgg_e, acc_vgg_e, rest_pre_vgg_e, focus_pre_vgg_e, rest_rec_vgg_e, focus_rec_vgg_e, y_vgg_e_p_r,\
+            y_vgg_e_p_f, true_rest, true_focus = predict_img(args, vgg_ecg, test_loader_ecg_img, num_epochs, method4, results_ecg, fold, n, test_ids)  
+            
             test_time_vgg_ecg =  datetime.now() - train_time
             print('the test time of method {} is {}'.format(method4, test_time_vgg_ecg))
             
@@ -781,8 +790,10 @@ def main(args,results_face, results_ecg):
             p = pickle.dumps(cnn_ecg)
             cnn_ecg_size = sys.getsizeof(p)
             print("the size of method {} is {}".format(method5, cnn_ecg_size))
-            y_cnn_e, pred_cnn_e, prob_cnn_e, acc_cnn_e, rest_pre_cnn_e, focus_pre_cnn_e, rest_rec_cnn_e, focus_rec_cnn_e, y_cnn_f_p_r, y_cnn_f_p_f, true_rest, true_focus =\
-                predict_img(args, cnn_ecg, test_loader_ecg, num_epochs, method5, results_ecg, fold, n, test_ids)            
+            y_cnn_e, pred_cnn_e, prob_cnn_e, acc_cnn_e, rest_pre_cnn_e, focus_pre_cnn_e, rest_rec_cnn_e, focus_rec_cnn_e, \
+            y_cnn_f_p_r, y_cnn_f_p_f, true_rest, true_focus =\
+                predict_img(args, cnn_ecg, test_loader_ecg, num_epochs, method5, results_ecg, fold, n, test_ids)        
+            
             test_time_cnn_ecg = datetime.now() - train_time
             print('the testing time of method {} is {}'.format(method5, test_time_cnn_ecg))
             
@@ -814,8 +825,8 @@ def main(args,results_face, results_ecg):
             p = pickle.dumps(svm_ecg)
             svm_ecg_size = sys.getsizeof(p)
             print("the size of method {} is {}".format(method6,svm_ecg_size))
-            pred_svm_e, prob_svm_e, acc_svm_e, rest_pre_svm_e, focus_pre_svm_e, rest_rec_svm_e, focus_rec_svm_e, y_svm_f_p_r, y_svm_f_p_f, true_rest, true_focus = \
-                predict_svm_xgb(args, svm_ecg, x_test_ecg, y_test_ecg, results_ecg, method6, fold, n, test_ids)             
+            pred_svm_e, prob_svm_e, acc_svm_e, rest_pre_svm_e, focus_pre_svm_e, rest_rec_svm_e, focus_rec_svm_e, y_svm_f_p_r,\
+            y_svm_f_p_f, true_rest, true_focus = predict_svm_xgb(args, svm_ecg, x_test_ecg, y_test_ecg, results_ecg, method6, fold, n, test_ids)             
             test_time_svm_ecg= datetime.now() - train_time
             print('the testing time of method {} is {}'.format(method6, test_time_svm_ecg))
             
@@ -843,8 +854,9 @@ def main(args,results_face, results_ecg):
             p = pickle.dumps(xgb_ecg)
             xgb_ecg_size = sys.getsizeof(p)
             print("the size of method {} is {}".format(method7,xgb_ecg_size))            
-            pred_xgb_e, prob_xgb_e, acc_xgb_e, rest_pre_xgb_e, focus_pre_xgb_e, rest_rec_xgb_e, focus_rec_xgb_e, y_xgb_f_p_r, y_xgb_f_p_f, true_rest, true_focus= \
-                predict_svm_xgb(args, xgb_ecg, x_test_ecg, y_test_ecg, results_ecg, method7, fold, n, test_ids)            
+            pred_xgb_e, prob_xgb_e, acc_xgb_e, rest_pre_xgb_e, focus_pre_xgb_e, rest_rec_xgb_e, focus_rec_xgb_e, y_xgb_f_p_r, y_xgb_f_p_f, \
+            true_rest, true_focus = predict_svm_xgb(args, xgb_ecg, x_test_ecg, y_test_ecg, results_ecg, method7, fold, n, test_ids) 
+            
             test_time_xgb_ecg= datetime.now() - train_time 
             print('the testing time of method {} is {}'.format(method7, test_time_xgb_ecg)) 
             # print('y_test_ecg == y_vgg_e ?', y_test_ecg==y_vgg_e)  
